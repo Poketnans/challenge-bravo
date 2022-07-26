@@ -1,5 +1,7 @@
 from environs import Env
 
+from app.models.currencies_model import Currency
+
 Env().read_env()
 
 import os
@@ -139,3 +141,17 @@ def get_currency_payload(fake, currencies):
         }
 
     return lambda: gen_payload(fake, currencies)
+
+
+@fixture
+def new_currency(get_currency_data, app: AppWithDb):
+    with app.app_context():
+        session = app.db.session
+
+        currency = Currency(**get_currency_data())
+
+        session.add(currency)
+
+        session.commit()
+
+        yield currency
