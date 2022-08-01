@@ -2,7 +2,9 @@ from functools import wraps
 from http import HTTPStatus
 from typing import Callable
 
-from flask import Response, jsonify, request
+from flask import jsonify, request
+from flask.wrappers import Response
+from sqlalchemy.orm import Query
 from werkzeug.exceptions import NotFound
 
 from app.classes.app_with_db import current_app
@@ -25,13 +27,13 @@ def verify_currency(controller: Callable) -> Callable:
             to = query_params["to"].upper()
 
             session = current_app.db.session
-            query = session.query(Currency)
-            from_curr: Currency = filter_by_or_404(
+            query: Query[Currency] = session.query(Currency)
+            from_curr = filter_by_or_404(
                 query,
                 {"code": _from},
                 description={"code": _from},
             )
-            to_curr: Currency = filter_by_or_404(
+            to_curr = filter_by_or_404(
                 query,
                 {"code": to},
                 description={"code": to},

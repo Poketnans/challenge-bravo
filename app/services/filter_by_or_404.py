@@ -1,13 +1,16 @@
-from typing import Type
+from __future__ import annotations
 
-from flask_sqlalchemy import Model
+from typing import Type, TypeVar
+
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import NotFound
 
+T = TypeVar("T")
+
 
 def filter_by_or_404(
-    query: Query, criteria, description=None, exception: Type[NotFound] = NotFound
-) -> Model:
+    query: Query[T], criteria, description=None, exception: Type[NotFound] = NotFound
+) -> T:
     """
     Runs the method `Query.filter_by` using given criteria. Returns the filtered register.
 

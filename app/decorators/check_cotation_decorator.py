@@ -18,7 +18,7 @@ def check_cotation(controller: Callable) -> Callable:
         updated = True
 
         if cotation:
-            diff = now - current_app.cotation.updated_at
+            diff = now - cotation.updated_at
             updated = diff.total_seconds() < 60
 
         current_app.cotation_is_updated = updated

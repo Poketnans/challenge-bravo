@@ -2,7 +2,8 @@ from functools import wraps
 from http import HTTPStatus
 from typing import Callable
 
-from flask import Response, jsonify
+from flask import jsonify
+from flask.wrappers import Response
 from marshmallow.exceptions import ValidationError
 
 from app.errors import CustomError

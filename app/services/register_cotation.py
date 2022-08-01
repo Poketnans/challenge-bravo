@@ -1,7 +1,4 @@
 from datetime import datetime
-from time import strptime
-
-from requests import Response
 
 from app.classes import current_app
 from app.models.cotations_model import Cotation

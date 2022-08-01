@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, String
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from app.configs.database import db
