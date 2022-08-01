@@ -4,65 +4,18 @@ from uuid import uuid4
 from alembic import op
 from sqlalchemy import Table
 
+from app.utils import get_initial_currencies
+
 
 def populate_currencies_table(table: Table):
-    columns = (
-        "id",
-        "code",
-        "label",
-        "backing_currency",
-        "is_crypto",
-        "created_at",
-        "updated_at",
-    )
-    list_values = [
-        (
-            str(uuid4()),
-            "USD",
-            "Dólar Americano",
-            True,
-            False,
-            datetime.now(),
-            datetime.now(),
-        ),
-        (
-            str(uuid4()),
-            "BRL",
-            "Real Brasileiro",
-            False,
-            False,
-            datetime.now(),
-            datetime.now(),
-        ),
-        (
-            str(uuid4()),
-            "EUR",
-            "Euro",
-            False,
-            False,
-            datetime.now(),
-            datetime.now(),
-        ),
-        (
-            str(uuid4()),
-            "BTC",
-            "Bitcoin",
-            False,
-            True,
-            datetime.now(),
-            datetime.now(),
-        ),
-        (
-            str(uuid4()),
-            "ETH",
-            "Ethereum",
-            False,
-            True,
-            datetime.now(),
-            datetime.now(),
-        ),
+    rows = [
+        {
+            "id": str(uuid4()),
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            **currency,
+        }
+        for currency in get_initial_currencies()
     ]
-
-    rows = [dict(zip(columns, values)) for values in list_values]
 
     op.bulk_insert(table, rows)
