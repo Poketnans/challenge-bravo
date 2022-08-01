@@ -19,15 +19,18 @@ bp_currency = Blueprint("currency", __name__, url_prefix="")
 @valdiate_params
 @verify_currency
 @check_cotation
-def get_conversion_caller():
-    return get_conversion()
+def get_conversion_caller(*args, **kwargs):
+    return get_conversion(*args, **kwargs)
 
 
 @bp_currency.post("")
 @error_handler
 @validate_schema(CurrencySchema)
-def register_currency_caller():
-    return register_currency()
+def register_currency_caller(*args, **kwargs):
+    return register_currency(*args, **kwargs)
 
 
-bp_currency.delete("/<code>")(delete_currency)
+@bp_currency.delete("/<code>")
+@error_handler
+def delete_currency_caller(*args, **kwargs):
+    return delete_currency(*args, **kwargs)

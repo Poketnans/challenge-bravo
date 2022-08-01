@@ -5,15 +5,18 @@ from typing import Callable
 from flask import Response, jsonify
 from marshmallow.exceptions import ValidationError
 
-from app.errors import AlreadyRegisteredError
+from app.errors import AlreadyRegisteredError, CustomError
 from app.errors.invalid_value_types_error import InvalidValueTypesError
 
 
 def error_handler(controller: Callable) -> Callable:
     """
     Handle the errors raised from descending decorators.
-    The errors MUST be inrerited from `werkzeug.exceptions.HTTPException`
+    The errors MUST be inrerited from `app.errors.CustomError`
     """
+
+    def treat_err(err: CustomError):
+        return jsonify(err.description), err.code
 
     @wraps(controller)
     def wrapper(*args, **kwargs) -> tuple[Response, int]:
@@ -26,5 +29,7 @@ def error_handler(controller: Callable) -> Callable:
         except ValidationError as err:
             msg = {"error": "Validation error.", **err.messages}
             return jsonify(msg), HTTPStatus.BAD_REQUEST
+        except CustomError as err:
+            return treat_err(err)
 
     return wrapper
