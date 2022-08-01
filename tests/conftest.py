@@ -1,6 +1,7 @@
 from environs import Env
 
 from app.models.currencies_model import Currency
+from tests.utils import gen_unique
 
 Env().read_env()
 
@@ -83,11 +84,11 @@ def fake() -> Faker:
 
 
 @fixture
-def get_currency_data(fake):
+def get_currency_data(fake, currency_codes, currency_labels):
 
     return lambda: {
-        "code": fake.unique.currency_code(),
-        "label": fake.unique.currency_name(),
+        "code": gen_unique(currency_codes, fake.currency_code),
+        "label": gen_unique(currency_labels, fake.currency_name),
     }
 
 
@@ -101,7 +102,7 @@ def get_cotation_data(fake):
 
 
 @fixture
-def currencies():
+def currency_codes():
     return (
         "USD",
         "BRL",
@@ -112,23 +113,27 @@ def currencies():
 
 
 @fixture
-def get_currency_payload(fake, currencies):
+def currency_labels():
+    return (
+        "Dólar Americano",
+        "Real Brasileiro",
+        "Euro",
+        "Bitcoin",
+        "Ethereum",
+    )
+
+
+@fixture
+def get_currency_payload(fake, currency_codes, currency_labels):
     """
     Gera informações aleatórias para a requisição de registro de moedas.
     As moedas são diferentes das moedas padrão.
     """
 
-    def gen_payload(fake, currencies):
-
-        code = ""
-        while True:
-            code = fake.unique.currency_code()
-            if code not in currencies:
-                break
-
+    def gen_payload(fake):
         return {
-            "code": code,
-            "label": fake.unique.currency_name(),
+            "code": gen_unique(currency_codes, fake.currency_code),
+            "label": gen_unique(currency_labels, fake.currency_name),
             "is_crypto": False,
             "conversion": {
                 "USD": float(
@@ -140,7 +145,7 @@ def get_currency_payload(fake, currencies):
             },
         }
 
-    return lambda: gen_payload(fake, currencies)
+    return lambda: gen_payload(fake)
 
 
 @fixture
@@ -151,7 +156,6 @@ def new_currency(get_currency_data, app: AppWithDb):
         currency = Currency(**get_currency_data())
 
         session.add(currency)
-
         session.commit()
 
         yield currency

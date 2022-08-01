@@ -87,7 +87,7 @@ def test_get_conversion_passing_same_from_and_to_param(
 
 
 def test_get_conversion_unregistered_currency_404(
-    client: FlaskClient, currencies, colorized
+    client: FlaskClient, currency_codes, colorized
 ):
     """
     GIVEN the conversion route
@@ -102,7 +102,7 @@ def test_get_conversion_unregistered_currency_404(
 
     expected = {
         "error": f"Currency {non_registered} not registered",
-        "curencies": [*currencies],
+        "curencies": [*currency_codes],
     }
 
     response = client.get(path)
