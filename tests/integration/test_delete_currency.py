@@ -27,7 +27,7 @@ def test_delete_restricted_currency_route_403(client: FlaskClient, code, coloriz
     json: dict = response.json
 
     expected = {
-        "error": "This is a restricted currency. You can not delete it.",
+        "error": "This is a restrict currency. You can not delete it.",
     }
 
     assert json == expected, colorized(json)
