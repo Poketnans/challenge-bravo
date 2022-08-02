@@ -43,6 +43,14 @@ def verify_currency(controller: Callable) -> Callable:
             current_app.to_currency = to_curr
 
             cotation = session.query(Cotation).filter_by(code=f"{_from}{to}").first()
+
+            if not cotation:
+                cotation = (
+                    session.query(Cotation).filter_by(code=f"{to}{_from}").first()
+                )
+                if cotation:
+                    current_app.inverted_conversion = True
+
             current_app.cotation = cotation
 
             return controller(*args, **kwargs)

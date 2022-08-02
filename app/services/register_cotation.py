@@ -4,11 +4,13 @@ from app.classes import current_app
 from app.models.cotations_model import Cotation
 
 
-def register_cotation(rate, quote_date):
+def register_cotation(
+    rate,
+    quote_date,
+    from_currency,
+    to_currency,
+):
     session = current_app.db.session
-
-    from_currency = current_app.from_currency
-    to_currency = current_app.to_currency
 
     cotation = Cotation(
         code=f"{from_currency.code}{to_currency.code}",

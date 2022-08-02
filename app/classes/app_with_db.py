@@ -27,6 +27,7 @@ class AppWithDb(Flask):
     amount_param: float
     cotation_is_updated: bool
     validated_data: dict
+    inverted_conversion = False
 
 
 """ Intellisense do current app"""
