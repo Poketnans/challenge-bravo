@@ -9,6 +9,7 @@ def fetch(_from: str, to: str = "USD") -> dict:
     BASE_URL = "https://economia.awesomeapi.com.br/last"
     url = f"{BASE_URL}/{_from}-{to}"
     response = requests.get(url)
+    current_app.inverted_conversion = False
 
     if response.status_code == HTTPStatus.NOT_FOUND:
         url = f"{BASE_URL}/{to}-{_from}"

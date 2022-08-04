@@ -27,11 +27,11 @@ def get_conversion_service():
         )
         quote_date = curr_app.cotation.updated_at.strftime("%Y-%m-%d %H:%M:%S")
 
-    elif from_currency.is_crypto:
+    elif from_currency.is_crypto and not to_currency.backing_currency:
         cot_rate, quote_date = get_cotation_info(from_currency, to_currency)
         conversion = amount * cot_rate
 
-    elif to_currency.is_crypto:
+    elif to_currency.is_crypto and not from_currency.backing_currency:
         cot_rate, quote_date = get_cotation_info(from_currency, to_currency)
         conversion = amount / cot_rate
 
@@ -45,7 +45,7 @@ def get_conversion_service():
         conversion = amount * rate
 
         if not curr_app.cotation_is_updated:
-            update_cotation(rate, quote_date)
+            update_cotation(curr_app.cotation, {"rate": rate, "quote_date": quote_date})
         else:
             register_cotation(rate, quote_date, from_currency, to_currency)
 

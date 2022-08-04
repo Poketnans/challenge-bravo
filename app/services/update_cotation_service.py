@@ -1,18 +1,25 @@
-from datetime import datetime
+from typing import TYPE_CHECKING, TypedDict
 
 from app.classes import current_app
-from app.models.cotations_model import Cotation
+
+if TYPE_CHECKING:
+    from app.models.cotations_model import Cotation
 
 
-def update_cotation(
-    rate: float,
-    quote_date: str,
-):
+class FieldsToUpdate(TypedDict):
+    rate: float
+    quote_date: str
+
+
+def update_cotation(cotation: "Cotation", data: FieldsToUpdate):
+    """
+    Updates cotation.
+    """
     session = current_app.db.session
     cotation = current_app.cotation
 
-    cotation.rate = rate
-    cotation.updated_at = datetime.strptime(quote_date, "%Y-%m-%d %H:%M:%S")
+    for field, value in data.items():
+        setattr(cotation, field, value)
 
     session.add(cotation)
     session.commit()

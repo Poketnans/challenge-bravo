@@ -25,6 +25,7 @@ def verify_currency(controller: Callable) -> Callable:
             query_params = request.args
             _from = query_params["from"].upper()
             to = query_params["to"].upper()
+            current_app.inverted_conversion = False
 
             session = current_app.db.session
             query: Query[Currency] = session.query(Currency)

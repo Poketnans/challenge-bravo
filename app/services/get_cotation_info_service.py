@@ -5,6 +5,7 @@ from sqlalchemy.orm import Query
 from app.classes.app_with_db import current_app as curr_app
 from app.models import Cotation, Currency
 from app.services.register_cotation import register_cotation
+from app.services.update_cotation_service import update_cotation
 from app.utils import fetch, get_crypto_rate, get_rate
 
 
@@ -31,6 +32,8 @@ def get_cotation_info(
         cot_rate = get_crypto_rate(get_rate(crypto_to_USD))
         quote_date: str = crypto_to_USD["create_date"]
 
+        cot_rate = 1 / cot_rate if curr_app.inverted_conversion else cot_rate
+
         register_cotation(cot_rate, quote_date, from_currency, usd_curr)
 
     if not to_currency.backing_currency:
@@ -44,7 +47,10 @@ def get_cotation_info(
             middle_cot_rate = get_rate(middle_cotation)
 
             register_cotation(middle_cot_rate, quote_date, usd_curr, to_currency)
+            register_cotation(cot_rate, quote_date, from_currency, to_currency)
 
         cot_rate = cot_rate * float(middle_cot_rate)
-    register_cotation(cot_rate, quote_date, from_currency, to_currency)
+
+    if curr_app.cotation and not curr_app.cotation_is_updated:
+        update_cotation(curr_app.cotation, {"rate": cot_rate, "quote_date": quote_date})
     return cot_rate, quote_date

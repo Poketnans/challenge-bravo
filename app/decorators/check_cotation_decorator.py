@@ -1,8 +1,8 @@
-from datetime import datetime
 from functools import wraps
 from typing import Callable
 
 from app.classes.app_with_db import current_app
+from app.utils import check_cotation_is_updated
 
 
 def check_cotation(controller: Callable) -> Callable:
@@ -13,15 +13,10 @@ def check_cotation(controller: Callable) -> Callable:
 
     @wraps(controller)
     def wrapper(*args, **kwargs) -> Callable:
-        now = datetime.now()
         cotation = current_app.cotation
-        updated = True
 
         if cotation:
-            diff = now - cotation.updated_at
-            updated = diff.total_seconds() < 60
-
-        current_app.cotation_is_updated = updated
+            current_app.cotation_is_updated = check_cotation_is_updated(cotation)
 
         return controller(*args, **kwargs)
 

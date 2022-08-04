@@ -25,7 +25,7 @@ class AppWithDb(Flask):
     from_param: str
     to_param: str
     amount_param: float
-    cotation_is_updated: bool
+    cotation_is_updated = True
     validated_data: dict
     inverted_conversion = False
 
