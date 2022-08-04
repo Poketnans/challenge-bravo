@@ -1,7 +1,7 @@
 def get_crypto_rate(rate: str) -> float:
     """
-    Treats specific cryptocoin rate value. This points to specific used\n
-    external API.
+    Treats specific cryptocoin rate value. This is a treatment to specific\n
+    used external API.
     """
     rate_parts = rate.split(".")
     thousand_part = rate_parts[0]
