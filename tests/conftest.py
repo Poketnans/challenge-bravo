@@ -93,11 +93,29 @@ def get_currency_data(fake, currency_codes, currency_labels):
 
 
 @fixture
+def get_currencies(fake, currency_codes, currency_labels, get_currency_data):
+
+    curr_1 = Currency(**get_currency_data())
+
+    codes = [*currency_codes, curr_1.code]
+    labels = [*currency_labels, curr_1.label]
+
+    curr_2_data = {
+        "code": gen_unique(codes, fake.currency_code),
+        "label": gen_unique(labels, fake.currency_name),
+    }
+
+    curr_2 = Currency(**curr_2_data)
+    return lambda: (curr_1, curr_2)
+
+
+@fixture
 def get_cotation_data(fake):
 
     return lambda curr1, curr2: {
         "code": f"{curr1.code}-{curr2.code}",
         "rate": float(f"{fake.random.randint(0,99)}.{fake.random.randint(11,99)}"),
+        "quote_date": fake.date_time(),
     }
 
 

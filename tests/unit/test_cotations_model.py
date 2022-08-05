@@ -134,14 +134,11 @@ def test_cotation_relation_fields(
 
 
 def test_cotation_field_types(
-    app: AppWithDb,
-    colorized,
-    get_currency_data,
-    get_cotation_data,
+    app: AppWithDb, colorized, get_cotation_data, get_currencies
 ):
     """
     GIVEN the Cotation model
-    WHEN I instanciate correcty
+    WHEN I instanciate correctly
     WHEN I insert it into database
     THEN the attributes types must have be same as expected
     """
@@ -150,6 +147,7 @@ def test_cotation_field_types(
         ("id", str),
         ("code", str),
         ("rate", float),
+        ("quote_date", datetime),
         ("created_at", datetime),
         ("updated_at", datetime),
         ("from_currency_id", str),
@@ -161,14 +159,7 @@ def test_cotation_field_types(
     with app.app_context():
         session = app.db.session
 
-        from_currency = Currency(**get_currency_data())
-
-        to_currency_data = get_currency_data()
-
-        while to_currency_data["code"] == from_currency.code:
-            to_currency_data = get_currency_data()
-
-        to_currency = Currency(**get_currency_data())
+        from_currency, to_currency = get_currencies()
 
         data = {
             **get_cotation_data(from_currency, to_currency),
