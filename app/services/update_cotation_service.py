@@ -25,3 +25,5 @@ def update_cotation(cotation: "Cotation", data: FieldsToUpdate):
 
     session.add(cotation)
     session.commit()
+
+    return cotation

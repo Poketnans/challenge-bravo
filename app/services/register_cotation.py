@@ -28,3 +28,5 @@ def register_cotation(data: CotationFields):
 
     session.add(cotation)
     session.commit()
+
+    return cotation
