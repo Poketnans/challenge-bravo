@@ -12,7 +12,7 @@ def pupulate_is_external_currencies_column():
     that column were not created yet.
     """
     queries = """
-    UPDATE currencies c
+    UPDATE currencies
     SET is_external = (
         CASE
             {}
@@ -21,7 +21,7 @@ def pupulate_is_external_currencies_column():
     """
 
     when_then_args = [
-        f"WHEN c.code = '{data['code']}' THEN {data['is_external']}"
+        f"WHEN currencies.code = '{data['code']}' THEN {data['is_external']}"
         for data in get_initial_currencies()
     ]
     op.execute(queries.format(" ".join(when_then_args)))
