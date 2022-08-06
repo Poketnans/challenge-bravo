@@ -15,7 +15,7 @@ class Cotation(db.Model):
     id: str
     code: str
     rate: float
-    quote_date: str
+    quote_date: datetime
     created_at: datetime
     updated_at: datetime
     from_currency: Currency
