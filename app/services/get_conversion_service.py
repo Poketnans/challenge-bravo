@@ -32,7 +32,7 @@ def get_conversion_service():
         conversion = amount * cot_rate
 
     elif to_currency.is_crypto and not from_currency.backing_currency:
-        cot_rate, quote_date = get_cotation_info(from_currency, to_currency)
+        cot_rate, quote_date = get_cotation_info(to_currency, from_currency)
         conversion = amount / cot_rate
 
     else:
@@ -44,10 +44,17 @@ def get_conversion_service():
         rate = (1 / quote_rate) if curr_app.inverted_conversion else quote_rate
         conversion = amount * rate
 
-        if not curr_app.cotation_is_updated:
+        if curr_app.cotation and not curr_app.cotation_is_updated:
             update_cotation(curr_app.cotation, {"rate": rate, "quote_date": quote_date})
-        else:
-            register_cotation(rate, quote_date, from_currency, to_currency)
+        elif not curr_app.cotation:
+            register_cotation(
+                {
+                    "rate": rate,
+                    "quote_date": quote_date,
+                    "from_currency": from_currency,
+                    "to_currency": to_currency,
+                }
+            )
 
     payload = {
         _from: round(amount, 4),
