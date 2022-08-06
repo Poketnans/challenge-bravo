@@ -3,30 +3,35 @@
         "code": "USD",
         "label": "Dólar Americano",
         "backing_currency": true,
-        "is_crypto": false
+        "is_crypto": false,
+        "is_external": true
     },
     {
         "code": "BRL",
         "label": "Real Brasileiro",
         "backing_currency": false,
-        "is_crypto": false
+        "is_crypto": false,
+        "is_external": true
     },
     {
         "code": "EUR",
         "label": "Euro",
         "backing_currency": false,
-        "is_crypto": false
+        "is_crypto": false,
+        "is_external": true
     },
     {
         "code": "BTC",
         "label": "Bitcoin",
         "backing_currency": false,
-        "is_crypto": true
+        "is_crypto": true,
+        "is_external": true
     },
     {
         "code": "ETH",
         "label": "Ethereum",
         "backing_currency": false,
-        "is_crypto": true
+        "is_crypto": true,
+        "is_external": true
     }
 ]
