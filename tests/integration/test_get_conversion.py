@@ -168,3 +168,51 @@ def test_wrong_amount_param_value_type(client, amount, colorized):
 
     assert response.json == expected, colorized(response.json)
     assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+@mark.parametrize("_from", ["USD", "BRL", "EUR", "BTC", "ETH"])
+@mark.parametrize("to", ["BTC", "ETH"])
+def test_get_conversion_to_crypto_200(
+    client: FlaskClient,
+    _from,
+    to,
+    colorized,
+):
+    """
+    GIVEN the conversion route
+    WHEN I try to convert any currency to cripto-currency
+    THEN I received correct response
+    THEN I receive the status code 200
+    """
+
+    if _from == to:
+        return
+
+    path = f"/api?from={_from}&to={to}&amount={randint(1, 10)}"
+
+    expected_keys = lambda _from, to: (_from, to, "quote_date")
+    expected_types = lambda _from, to: {
+        _from: float,
+        to: float,
+        "quote_date": str,
+    }
+
+    response = client.get(path)
+
+    assert response.content_type == "application/json", colorized(
+        f"Verificar se a rota <{path}> foi configurada."
+    )
+
+    assert response.status_code == HTTPStatus.OK, colorized(
+        f"Not able to convert {_from} to {to}"
+    )
+
+    json: dict = response.json
+    expected = expected_keys(_from, to)
+    assert set(json) == set(expected), colorized(f"{_from} - {to} - {path}")
+
+    response_types = expected_types(_from, to)
+
+    assert type(json[_from]) == response_types[_from]
+    assert type(json[to]) == response_types[to]
+    assert datetime.strptime(json["quote_date"], "%Y-%m-%d %H:%M:%S")
