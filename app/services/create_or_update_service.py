@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, Union
 
 from app.services.register_cotation import register_cotation
@@ -12,7 +13,7 @@ def create_or_update(
     from_currency: "Currency",
     to_currency: "Currency",
     rate: float,
-    quote_date: str,
+    quote_date: datetime,
     cotation: Union["Cotation", None] = None,
 ):
     """

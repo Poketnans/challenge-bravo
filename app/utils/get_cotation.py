@@ -6,6 +6,7 @@ from sqlalchemy.orm import Query
 
 from app.utils.fetch import fetch
 from app.utils.get_crypto_rate import get_crypto_rate
+from app.utils.get_quote_date import get_quote_date
 from app.utils.get_rate import get_rate
 
 if TYPE_CHECKING:
@@ -26,7 +27,7 @@ def get_cotation(
             if from_currency.is_crypto
             else float(get_rate(cotation_data))
         )
-        cotation_quote_date: str = cotation_data["create_date"]
+        cotation_quote_date = get_quote_date(cotation_data)
 
         cotation = create_or_update(
             from_currency, to_currency, cotation_rate, cotation_quote_date

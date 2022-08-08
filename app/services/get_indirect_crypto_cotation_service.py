@@ -14,13 +14,10 @@ def get_indirect_crypto_cotation(crypto: Currency, currency: Currency) -> Cotati
     usd_curr = currency_query.filter_by(code="USD").first()
 
     crypto_to_USD_cotation = get_cotation(query, crypto, usd_curr)
+    USD_to_external = get_cotation(query, usd_curr, currency)
 
-    middle_cotation_cotation = get_cotation(query, usd_curr, currency)
+    cot_rate = crypto_to_USD_cotation.rate * float(USD_to_external.rate)
 
-    cot_rate = crypto_to_USD_cotation.rate * float(middle_cotation_cotation.rate)
-
-    cotation = create_or_update(
-        crypto, currency, cot_rate, str(middle_cotation_cotation.quote_date)
-    )
+    cotation = create_or_update(crypto, currency, cot_rate, USD_to_external.quote_date)
 
     return cotation

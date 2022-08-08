@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 
@@ -43,6 +45,7 @@ def register_currency_service():
 
     cotation.from_currency = from_currency
     cotation.to_currency = to_currency
+    cotation.quote_date = datetime.now()
 
     try:
         session.add(cotation)
