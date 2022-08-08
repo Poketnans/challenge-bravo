@@ -5,6 +5,9 @@ from random import randint
 from flask.testing import FlaskClient
 from pytest import mark
 
+from app.classes.app_with_db import AppWithDb
+from app.models import Currency
+
 
 @mark.parametrize("from_currency", ["USD", "BRL", "EUR", "BTC", "ETH"])
 @mark.parametrize("to_currency", ["USD", "BRL", "EUR"])
@@ -215,4 +218,63 @@ def test_get_conversion_to_crypto_200(
 
     assert type(json[_from]) == response_types[_from]
     assert type(json[to]) == response_types[to]
+    assert datetime.strptime(json["quote_date"], "%Y-%m-%d %H:%M:%S")
+
+
+@mark.parametrize("external", ["USD", "BRL", "EUR", "BTC", "ETH"])
+def test_get_conversion_internal_to_external_crypto_200(
+    client: FlaskClient, external, colorized, get_currency_payload
+):
+    """
+    GIVEN the created currencies called `internal`
+    GIVEN the initial currencies called `external`
+    GIVEN the conversion route
+    WHEN I try to convert any external to internal
+    THEN I received correct response
+    THEN I receive the status code 200
+    """
+
+    baseUrl = "/api"
+
+    payload = get_currency_payload()
+
+    response = client.post(baseUrl, json=payload)
+
+    assert response.content_type == "application/json", colorized(
+        f"Não deu certo criar a moeda {payload['code']}."
+    )
+
+    new_currency: dict = response.json
+
+    internal = new_currency["code"]
+
+    path = (
+        f"{baseUrl}?from={new_currency['code']}&to={external}&amount={randint(1, 10)}"
+    )
+
+    expected_keys = lambda _from, to: (_from, to, "quote_date")
+    expected_types = lambda _from, to: {
+        _from: float,
+        to: float,
+        "quote_date": str,
+    }
+
+    response = client.get(path)
+
+    assert response.content_type == "application/json", colorized(
+        f"Verificar se a rota <{path}> foi configurada."
+    )
+
+    assert response.status_code == HTTPStatus.OK, colorized(
+        f"Not able to convert {internal} to {external}"
+    )
+
+    json: dict = response.json
+    expected = expected_keys(internal, external)
+    assert set(json) == set(expected), colorized(f"{internal} - {external} - {path}")
+
+    response_types = expected_types(internal, external)
+
+    assert type(json[internal]) == response_types[internal]
+    assert type(json[external]) == response_types[external]
     assert datetime.strptime(json["quote_date"], "%Y-%m-%d %H:%M:%S")
