@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from app.classes.app_with_db import current_app as curr_app
-from app.services.get_cotation_info_service import get_cotation_info
+from app.services.get_indirect_crypto_cotation_service import (
+    get_indirect_crypto_cotation,
+)
 from app.services.get_indirect_internal_cotation import get_indirect_internal_cotation
 from app.services.register_cotation import register_cotation
 from app.services.update_cotation_service import update_cotation
@@ -35,13 +37,13 @@ def get_conversion_service():
 
     elif from_currency.is_crypto and not to_currency.backing_currency:
         print(2)
-        cot_rate, quote_date = get_cotation_info(from_currency, to_currency)
-        conversion = amount * cot_rate
+        cotation = get_indirect_crypto_cotation(from_currency, to_currency)
+        conversion = amount * cotation.rate
 
     elif to_currency.is_crypto and not from_currency.backing_currency:
         print(3)
-        cot_rate, quote_date = get_cotation_info(to_currency, from_currency)
-        conversion = amount / cot_rate
+        cotation = get_indirect_crypto_cotation(to_currency, from_currency)
+        conversion = amount / cotation.rate
 
     elif not from_currency.is_external:
         cot_rate, quote_date = get_indirect_internal_cotation(
@@ -65,10 +67,7 @@ def get_conversion_service():
         rate = (1 / quote_rate) if curr_app.inverted_conversion else quote_rate
         conversion = amount * rate
 
-        # if curr_app.cotation and not curr_app.cotation_is_updated:
-        #     update_cotation(curr_app.cotation, {"rate": rate, "quote_date": quote_date})
-        # elif not curr_app.cotation:
-        register_cotation(
+        cotation = register_cotation(
             {
                 "rate": rate,
                 "quote_date": quote_date,
@@ -76,6 +75,8 @@ def get_conversion_service():
                 "to_currency": to_currency,
             }
         )
+
+        quote_date = cotation.quote_date
 
     payload = {
         _from: round(amount, 4),
