@@ -54,12 +54,7 @@ class CotationRepo:
         self._session.add(instance)
         return instance
 
-    def update(self, data: PartialCotationFields, **criteria) -> Cotation:
-        instance = self._query.filter_by(**criteria).first()
-        for key, value in data.items():
-            setattr(instance, key, value)
-
-        instance.updated_at = datetime.now()
-
-        self._session.add(instance)
-        return instance
+    def update(self, id: str, data: PartialCotationFields) -> Cotation:
+        instance = self._query.filter_by(id=id)
+        instance.update({**data, "updated_at": datetime.now()})
+        return instance.first()
