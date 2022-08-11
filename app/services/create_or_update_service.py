@@ -1,8 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Union
 
-from app.services.register_cotation import register_cotation
-from app.services.update_cotation_service import update_cotation
+from app.repositories.cotation_repository import (
+    CotationFields,
+    CotationRepo,
+    PartialCotationFields,
+)
 from app.utils import check_cotation_is_updated
 
 if TYPE_CHECKING:
@@ -19,25 +22,22 @@ def create_or_update(
     """
     Inserts or updates cotations depending on its ipdate state.
     """
-    if not cotation:
-        new_cotation = register_cotation(
-            {
-                "rate": rate,
-                "quote_date": quote_date,
+
+    with CotationRepo() as repo:
+        if not cotation:
+            payload: CotationFields = {
                 "from_currency": from_currency,
                 "to_currency": to_currency,
-            }
-        )
-        return new_cotation
-
-    elif not check_cotation_is_updated(cotation):
-        updated_cotation = update_cotation(
-            cotation,
-            {
-                "rate": rate,
                 "quote_date": quote_date,
-            },
-        )
-        return updated_cotation
+                "rate": rate,
+            }
+            cotation = repo.create(payload)
+
+        elif not check_cotation_is_updated(cotation):
+            data: PartialCotationFields = {
+                "quote_date": quote_date,
+                "rate": rate,
+            }
+            cotation = repo.update(cotation.id, data)
 
     return cotation
