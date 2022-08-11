@@ -248,9 +248,7 @@ def test_get_conversion_internal_to_external_crypto_200(
 
     internal = new_currency["code"]
 
-    path = (
-        f"{baseUrl}?from={new_currency['code']}&to={external}&amount={randint(1, 10)}"
-    )
+    path = f"{baseUrl}?from={internal}&to={external}&amount={randint(1, 10)}"
 
     expected_keys = lambda _from, to: (_from, to, "quote_date")
     expected_types = lambda _from, to: {
@@ -277,4 +275,118 @@ def test_get_conversion_internal_to_external_crypto_200(
 
     assert type(json[internal]) == response_types[internal]
     assert type(json[external]) == response_types[external]
+    assert datetime.strptime(json["quote_date"], "%Y-%m-%d %H:%M:%S")
+
+
+def test_get_conversion_internal_to_internal_crypto_200(
+    client: FlaskClient, colorized, get_currency_payload
+):
+    """
+    GIVEN two created currencies called `internal_1` and `internal_2`
+    GIVEN the conversion route
+    WHEN I try to convert internal to internal
+    THEN I received correct response
+    THEN I receive the status code 200
+    """
+
+    baseUrl = "/api"
+
+    internal_1_payload = get_currency_payload()
+    internal_2_payload = get_currency_payload()
+
+    response_1 = client.post(baseUrl, json=internal_1_payload)
+    assert response_1.content_type == "application/json", colorized(
+        f"Não deu certo criar a moeda {internal_1_payload['code']}."
+    )
+
+    response_2 = client.post(baseUrl, json=internal_2_payload)
+    assert response_2.content_type == "application/json", colorized(
+        f"Não deu certo criar a moeda {internal_2_payload['code']}."
+    )
+
+    new_currency_1: dict = response_1.json
+    new_currency_2: dict = response_2.json
+
+    internal_code_1 = new_currency_1["code"]
+    internal_code_2 = new_currency_2["code"]
+
+    path = (
+        f"{baseUrl}?from={internal_code_1}&to={internal_code_2}&amount={randint(1, 10)}"
+    )
+
+    expected_keys = lambda _from, to: (_from, to, "quote_date")
+    expected_types = lambda _from, to: {
+        _from: float,
+        to: float,
+        "quote_date": str,
+    }
+
+    response = client.get(path)
+
+    assert response.content_type == "application/json", colorized(
+        f"Verificar se a rota <{path}> foi configurada."
+    )
+
+    assert response.status_code == HTTPStatus.OK, colorized(
+        f"Not able to convert {internal_code_1} to {internal_code_2}"
+    )
+
+    conversion: dict = response.json
+    expected = expected_keys(internal_code_1, internal_code_2)
+    assert set(conversion) == set(expected), colorized(
+        f"{internal_code_1} - {internal_code_2} - {path}"
+    )
+
+    response_types = expected_types(internal_code_1, internal_code_2)
+
+    assert type(conversion[internal_code_1]) == response_types[internal_code_1]
+    assert type(conversion[internal_code_2]) == response_types[internal_code_2]
+    assert datetime.strptime(conversion["quote_date"], "%Y-%m-%d %H:%M:%S")
+
+
+@mark.parametrize("_from", ["BTC", "ETH"])
+@mark.parametrize("to", ["BTC", "ETH"])
+def test_get_conversion_crypto_to_crypto_200(
+    client: FlaskClient,
+    _from,
+    to,
+    colorized,
+):
+    """
+    GIVEN the conversion route
+    WHEN I try to convert crypto to cripto
+    THEN I received correct response
+    THEN I receive the status code 200
+    """
+
+    if _from == to:
+        return
+
+    path = f"/api?from={_from}&to={to}&amount={randint(1, 10)}"
+
+    expected_keys = lambda _from, to: (_from, to, "quote_date")
+    expected_types = lambda _from, to: {
+        _from: float,
+        to: float,
+        "quote_date": str,
+    }
+
+    response = client.get(path)
+
+    assert response.content_type == "application/json", colorized(
+        f"Verificar se a rota <{path}> foi configurada."
+    )
+
+    assert response.status_code == HTTPStatus.OK, colorized(
+        f"Not able to convert {_from} to {to}"
+    )
+
+    json: dict = response.json
+    expected = expected_keys(_from, to)
+    assert set(json) == set(expected), colorized(f"{_from} - {to} - {path}")
+
+    response_types = expected_types(_from, to)
+
+    assert type(json[_from]) == response_types[_from]
+    assert type(json[to]) == response_types[to]
     assert datetime.strptime(json["quote_date"], "%Y-%m-%d %H:%M:%S")
