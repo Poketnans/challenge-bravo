@@ -15,12 +15,8 @@ def get_crypto_to_crypto_cotation(crypto_1: Currency, crypto_2: Currency):
 
     usd_curr = currency_repo.get_by(code="USD")
 
-    crypto_1_to_USD_cotation = get_cotation(
-        cotation_repo.get_query(), crypto_1, usd_curr
-    )
-    crypto_2_to_USD_cotation = get_cotation(
-        cotation_repo.get_query(), crypto_2, usd_curr
-    )
+    crypto_1_to_USD_cotation = get_cotation(crypto_1, usd_curr)
+    crypto_2_to_USD_cotation = get_cotation(crypto_2, usd_curr)
 
     rate = crypto_1_to_USD_cotation.rate / crypto_2_to_USD_cotation.rate
 
