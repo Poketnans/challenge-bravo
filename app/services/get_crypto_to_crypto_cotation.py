@@ -1,3 +1,4 @@
+from app.classes.app_with_db import current_app
 from app.models import Currency
 from app.repositories import CotationRepo, CurrencyRepo
 from app.services.create_or_update_service import create_or_update
@@ -10,7 +11,6 @@ def get_crypto_to_crypto_cotation(crypto_1: Currency, crypto_2: Currency):
 
     Aplies `rate = crypto_1_to_USD_cotation.rate / crypto_2_to_USD_cotation` logic
     """
-    cotation_repo = CotationRepo()
     currency_repo = CurrencyRepo()
 
     usd_curr = currency_repo.get_by(code="USD")
@@ -21,7 +21,11 @@ def get_crypto_to_crypto_cotation(crypto_1: Currency, crypto_2: Currency):
     rate = crypto_1_to_USD_cotation.rate / crypto_2_to_USD_cotation.rate
 
     cotation = create_or_update(
-        crypto_1, crypto_2, rate, crypto_1_to_USD_cotation.quote_date
+        crypto_1,
+        crypto_2,
+        rate,
+        crypto_1_to_USD_cotation.quote_date,
+        current_app.cotation,
     )
 
     return cotation
