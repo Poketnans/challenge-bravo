@@ -28,6 +28,9 @@ class CurrencyRepo:
     def get_by(self, **queryDict) -> Currency:
         return self.repo.filter_by(**queryDict).first()
 
+    def get_by_code(self, code) -> Currency:
+        return self.repo.filter_by(code=code).first()
+
     def create(self, data):
         instance = Currency(**data)
         self.session.add(instance)
