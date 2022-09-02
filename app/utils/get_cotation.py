@@ -20,7 +20,7 @@ def get_cotation(from_currency: "Currency", to_currency: "Currency"):
     repo = CotationRepo()
     cotation = repo.get_by(code=f"{from_currency.code}{to_currency.code}")
 
-    if not cotation or check_cotation_is_updated(cotation):
+    if not cotation or not check_cotation_is_updated(cotation):
         cotation_data = fetch(from_currency.code, to_currency.code)
         cotation_rate = (
             get_crypto_rate(get_rate(cotation_data))
