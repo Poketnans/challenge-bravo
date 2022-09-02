@@ -5,23 +5,13 @@ from sqlalchemy.exc import IntegrityError
 
 from app.classes.app_with_db import current_app
 from app.errors import AlreadyRegisteredError
-from app.models import Cotation, Currency
+from app.models import Currency
+from app.repositories import CotationRepo, CurrencyRepo
+from app.repositories.cotation_repository import CotationFields
 
 
 def register_currency_service():
     validated_data: dict = current_app.validated_data
-
-    session = current_app.db.session
-    query = session.query(Currency)
-
-    conversion = validated_data["conversion"]
-
-    USD_value: float = conversion["USD"]
-    local_value: float = conversion["local"]
-
-    USD_based = local_value > USD_value
-
-    rate = (local_value / USD_value) if USD_based else USD_value / local_value
 
     new_currency = Currency(
         code=validated_data["code"].upper(),
@@ -29,27 +19,27 @@ def register_currency_service():
         is_crypto=validated_data.get("is_crypto", False),
     )
 
-    USD_currency = query.filter_by(code="USD").first()
+    USD_currency = CurrencyRepo().get_by(code="USD")
 
-    cotation_code = (
-        f"USD{new_currency.code}" if USD_based else f"{new_currency.code}USD"
-    )
+    from_currency = USD_currency
+    to_currency = new_currency
 
-    from_currency = new_currency if USD_based else USD_currency
-    to_currency = USD_currency if USD_based else new_currency
+    conversion = validated_data["conversion"]
+    USD_value: float = conversion["USD"]
+    local_value: float = conversion["local"]
 
-    cotation = Cotation(
-        code=cotation_code,
-        rate=round(rate, 4),
-    )
+    rate = local_value / USD_value
 
-    cotation.from_currency = from_currency
-    cotation.to_currency = to_currency
-    cotation.quote_date = datetime.now()
+    payload: CotationFields = {
+        "from_currency": from_currency,
+        "to_currency": to_currency,
+        "quote_date": datetime.now(),
+        "rate": round(rate, 4),
+    }
 
     try:
-        session.add(cotation)
-        session.commit()
+        with CotationRepo() as cotation_repo:
+            cotation_repo.create(payload)
 
         return new_currency
     except IntegrityError as err:
