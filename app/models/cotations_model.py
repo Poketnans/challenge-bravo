@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, String
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from app.configs.database import db
@@ -15,6 +15,7 @@ class Cotation(db.Model):
     id: str
     code: str
     rate: float
+    quote_date: datetime
     created_at: datetime
     updated_at: datetime
     from_currency: Currency
@@ -25,6 +26,7 @@ class Cotation(db.Model):
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     code = Column(String(50), unique=True, nullable=False)
     rate = Column(Float, nullable=False)
+    quote_date = Column(DateTime)
     created_at = Column(DateTime, default=datetime.now())
     updated_at = Column(DateTime, default=datetime.now())
     from_currency_id = Column(String, ForeignKey("currencies.id"))

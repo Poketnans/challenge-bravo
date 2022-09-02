@@ -4,11 +4,11 @@ from flask.testing import FlaskClient
 from pytest import mark
 
 
-def test_register_function_route_201(
+def test_register_currency_route_201(
     client: FlaskClient, get_currency_payload, colorized
 ):
     """
-    GIVEN the register currrency function
+    GIVEN the register currrency route
     WHEN I fetch a correct request
     THEN I receive the correct payload
     THEN I receive the status code 201
@@ -44,11 +44,11 @@ def test_register_function_route_201(
 
 
 @mark.parametrize("missed_field", ["code", "label", "conversion"])
-def test_register_function_route_missing_fields_400(
+def test_register_currency_route_missing_fields_400(
     client: FlaskClient, get_currency_payload, colorized, missed_field
 ):
     """
-    GIVEN the register currrency function
+    GIVEN the register currrency route
     WHEN I fetch request missing required fields
     THEN I receive the correct error payload
     THEN I receive the status code 400
@@ -82,11 +82,11 @@ def test_register_function_route_missing_fields_400(
 
 @mark.parametrize("obj_field", ["conversion"])
 @mark.parametrize("missed_field", ["USD", "local"])
-def test_register_function_route_missing_conversion_nested_fields_400(
+def test_register_currency_route_missing_conversion_nested_fields_400(
     client: FlaskClient, get_currency_payload, colorized, obj_field, missed_field
 ):
     """
-    GIVEN the register currrency function
+    GIVEN the register currrency route
     WHEN I fetch request missing conversion nested required fields
     THEN I receive the correct error payload
     THEN I receive the status code 400
@@ -123,7 +123,7 @@ def test_wrong_is_crypto_field_value_type(
     client: FlaskClient, get_currency_payload, wrong_type, colorized
 ):
     """
-    GIVEN the register currrency function
+    GIVEN the register currrency route
     WHEN I pass wrong value types to `is_crypto` field
     THEN I received correct error message
     THEN I receive the status code 400
@@ -155,7 +155,7 @@ def test_wrong_code_field_value_type(
     client: FlaskClient, get_currency_payload, wrong_type, colorized
 ):
     """
-    GIVEN the register currrency function
+    GIVEN the register currrency route
     WHEN I pass wrong value types to `code` field
     THEN I received correct error message
     THEN I receive the status code 400

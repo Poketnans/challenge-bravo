@@ -39,6 +39,7 @@ six==1.16.0
 SQLAlchemy==1.4.37
 tomli==2.0.1
 typing-extensions==4.2.0
+ujson==5.4.0
 urllib3==1.26.9
 Werkzeug==2.1.2
 zipp==3.8.0

@@ -2,7 +2,9 @@ from functools import wraps
 from http import HTTPStatus
 from typing import Callable
 
-from flask import Response, jsonify, request
+from flask import jsonify, request
+from flask.wrappers import Response
+from sqlalchemy.orm import Query
 from werkzeug.exceptions import NotFound
 
 from app.classes.app_with_db import current_app
@@ -23,15 +25,16 @@ def verify_currency(controller: Callable) -> Callable:
             query_params = request.args
             _from = query_params["from"].upper()
             to = query_params["to"].upper()
+            current_app.inverted_conversion = False
 
             session = current_app.db.session
-            query = session.query(Currency)
-            from_curr: Currency = filter_by_or_404(
+            query: Query[Currency] = session.query(Currency)
+            from_curr = filter_by_or_404(
                 query,
                 {"code": _from},
                 description={"code": _from},
             )
-            to_curr: Currency = filter_by_or_404(
+            to_curr = filter_by_or_404(
                 query,
                 {"code": to},
                 description={"code": to},
@@ -41,6 +44,14 @@ def verify_currency(controller: Callable) -> Callable:
             current_app.to_currency = to_curr
 
             cotation = session.query(Cotation).filter_by(code=f"{_from}{to}").first()
+
+            if not cotation:
+                cotation = (
+                    session.query(Cotation).filter_by(code=f"{to}{_from}").first()
+                )
+                if cotation:
+                    current_app.inverted_conversion = True
+
             current_app.cotation = cotation
 
             return controller(*args, **kwargs)
